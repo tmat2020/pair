@@ -1,0 +1,81 @@
+library(quantmod)
+library(dplyr)
+library(tseries)
+library(lubridate)
+
+mypair_pre <- NULL
+mypair_pre <- c("SYY","TSN","NEE","NEP","BAC","PNC","KBH","GFF","RSG","MMC","XYL","PNR","WST","DHR","HWC","CATY",
+                "FITB","ASB","MUR","XLE","PUK","LAZ","CFR","BMO","TD","AEL","FBK","BANC","TECK","CF","VMC","MLM",
+                "MTRN","MLI","NOG","MUR","KMI","EPD","SO","FTS","CIGI","CBRE","COF","ALLY","SRCE","CTBI","EWC","FXI")
+mypair <- NULL
+mypair <- lapply(mypair_pre, function(x) {getSymbols(x,
+                                                      from = ymd(today() - 180), 
+                                                      to = ymd(today()), 
+                                                      periodicity = "daily", 
+                                                      auto.assign=F)})
+names(mypair) <- mypair_pre
+
+##########################################################
+# 　ペアの作成
+##########################################################
+pair1 <- mypair$SYY - 0.95 * mypair$TSN
+pair2 <- mypair$NEE - 1.05 * mypair$NEP
+pair3 <- mypair$BAC - 0.22 * mypair$PNC
+pair4 <- mypair$KBH - 1.67 * mypair$GFF
+pair5 <- mypair$RSG - 0.80 * mypair$MMC
+pair6 <- mypair$XYL - 1.65 * mypair$PNR
+pair7 <- mypair$WST - 1.30 * mypair$DHR
+
+pair8 <- mypair$EWC - 1.30 * mypair$FXI
+
+pair_RSI <- NULL
+pair_RSI <- RSI(Cl(pair1), n=14)
+
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair2), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair3), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair4), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair5), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair6), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair7), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair8), n=14))
+
+names(pair_RSI) <- c("SYY-TSN","NEE-NEP","BAC-PNC","KBH-GFF","RSG-MMC","XYL-PNR","WST-DHR","EWC-FXI")
+
+tail(pair_RSI,14)
+
+#######
+# トライアル
+#######
+pair <- list("SYY-TSN","NEE-NEP","BAC-PNC","KBH-GFF","RSG-MMC","XYL-PNR","WST-DHR","EWC-FXI")
+
+pair[[1]] <- mypair$SYY - 0.95 * mypair$TSN
+pair[[2]] <- mypair$NEE - 1.05 * mypair$NEP
+pair[[3]] <- mypair$BAC - 0.22 * mypair$PNC
+pair[[4]] <- mypair$KBH - 1.67 * mypair$GFF
+pair[[5]] <- mypair$RSG - 0.80 * mypair$MMC
+pair[[6]] <- mypair$XYL - 1.65 * mypair$PNR
+pair[[7]] <- mypair$WST - 1.30 * mypair$DHR
+pair[[8]] <- mypair$EWC - 1.30 * mypair$FXI
+
+pair_RSI <- NULL
+pair_RSI <- RSI(Cl(pair[[1]]), n=14)
+
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair[[2]]), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair[[3]]), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair[[4]]), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair[[5]]), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair[[6]]), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair[[7]]), n=14))
+pair_RSI <- cbind(pair_RSI, RSI(Cl(pair[[8]]), n=14))
+
+############################################################
+# フィルター
+############################################################
+
+
+############################################################
+# グラフ
+############################################################
+chartSeries(pair8, 
+            TA = c(addBBands(n=20, sd=2), addRSI(), addEMA(n=30)),
+            theme=chartTheme("white"))
